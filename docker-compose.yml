@@ -1,0 +1,20 @@
+version: "3"
+services:
+  pg:
+    image: postgres
+    environment:
+      PGDATA: /data/postgres
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+    - pg:/data/postgres
+    ports:
+    - 5434:5432
+    networks:
+    - pg
+    restart: unless-stopped
+networks:
+  pg:
+    driver: bridge
+volumes:
+  pg: null
