@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,14 +13,14 @@ import (
 )
 
 var (
-	DBUser   = "user"
-	DBPass   = "pass"
-	DBHost   = "localhost"
-	DBPort   = "5434"
-	DBName   = "user"
-	DBSchema = "public"
+	DBUser   = flag.String("dbuser", "user", "database name")
+	DBPass   = flag.String("dbpass", "pass", "database password")
+	DBHost   = flag.String("dbhost", "localhost", "database host")
+	DBPort   = flag.String("dbport", "5434", "database port")
+	DBName   = flag.String("dbname", "user", "database user")
+	DBSchema = flag.String("dbschema", "public", "database schema")
 
-	TargetFolder = "migrations"
+	TargetFolder = flag.String("target-folder", "migrations", "where to put generation file")
 
 	PgDumpArgs = []string{
 		"--no-comments",
@@ -42,10 +43,12 @@ var (
 )
 
 func main() {
-	os.Setenv("PGPASSWORD", DBPass)
-	os.Mkdir(TargetFolder, 0777)
+	flag.Parse()
 
-	tables, err := tableList(DBSchema)
+	os.Setenv("PGPASSWORD", *DBPass)
+	os.Mkdir(*TargetFolder, 0777)
+
+	tables, err := tableList(*DBSchema)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -78,7 +81,7 @@ func generateMigrations(version, table string) error {
 		}
 	}
 
-	filename := fmt.Sprintf("%s/%s_%s", TargetFolder, version, table)
+	filename := fmt.Sprintf("%s/%s_%s", *TargetFolder, version, table)
 	dumpFilename := filename + ".dump.sql"
 	upFilename := filename + ".up.sql"
 	downFilename := filename + ".down.sql"
@@ -110,11 +113,11 @@ func isDownScript(line string) bool {
 func pgDump(table string) *exec.Cmd {
 	var args []string
 	args = append(PgDumpArgs,
-		"--username", DBUser,
-		"--port", DBPort,
-		"--host", DBHost,
+		"--username", *DBUser,
+		"--port", *DBPort,
+		"--host", *DBHost,
 		"--table", table,
-		DBName,
+		*DBName,
 	)
 	return exec.Command("pg_dump", args...)
 }
@@ -154,10 +157,10 @@ func tableList(schema string) ([]string, error) {
 
 func pgSQL(query string) *exec.Cmd {
 	return exec.Command("psql",
-		"-h", DBHost,
-		"-p", DBPort,
-		"-U", DBUser,
-		"-d", DBName,
+		"-h", *DBHost,
+		"-p", *DBPort,
+		"-U", *DBUser,
+		"-d", *DBName,
 		"-c", query,
 	)
 }
