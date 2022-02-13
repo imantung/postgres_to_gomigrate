@@ -13,12 +13,19 @@ import (
 )
 
 var (
-	DBUser   = flag.String("dbuser", "user", "database name")
-	DBPass   = flag.String("dbpass", "pass", "database password")
-	DBHost   = flag.String("dbhost", "localhost", "database host")
-	DBPort   = flag.String("dbport", "5434", "database port")
-	DBName   = flag.String("dbname", "user", "database user")
-	DBSchema = flag.String("dbschema", "public", "database schema")
+	DefaultDBUser   = "user"
+	DefaultDBPass   = "pass"
+	DefaultDBHost   = "localhost"
+	DefaultDBPort   = "5434"
+	DefaultDBName   = "user"
+	DefaultDBSchema = "public"
+
+	DBUser   = flag.String("dbuser", DefaultDBUser, "database name")
+	DBPass   = flag.String("dbpass", DefaultDBPass, "database password")
+	DBHost   = flag.String("dbhost", DefaultDBHost, "database host")
+	DBPort   = flag.String("dbport", DefaultDBPort, "database port")
+	DBName   = flag.String("dbname", DefaultDBName, "database user")
+	DBSchema = flag.String("dbschema", DefaultDBSchema, "database schema")
 
 	TargetFolder = flag.String("target-folder", "migrations", "where to put generation file")
 
