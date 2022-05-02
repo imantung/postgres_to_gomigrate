@@ -13,12 +13,13 @@ import (
 )
 
 var (
-	DefaultDBUser   = "user"
-	DefaultDBPass   = "pass"
-	DefaultDBHost   = "localhost"
-	DefaultDBPort   = "5434"
-	DefaultDBName   = "user"
-	DefaultDBSchema = "public"
+	DefaultDBUser       = "user"
+	DefaultDBPass       = "pass"
+	DefaultDBHost       = "localhost"
+	DefaultDBPort       = "5434"
+	DefaultDBName       = "user"
+	DefaultDBSchema     = "public"
+	DefaultTargetFolder = "migrations"
 
 	DBUser   = flag.String("dbuser", DefaultDBUser, "database name")
 	DBPass   = flag.String("dbpass", DefaultDBPass, "database password")
@@ -27,9 +28,10 @@ var (
 	DBName   = flag.String("dbname", DefaultDBName, "database user")
 	DBSchema = flag.String("dbschema", DefaultDBSchema, "database schema")
 
-	TargetFolder = flag.String("target-folder", "migrations", "where to put generation file")
+	TargetFolder = flag.String("target-folder", DefaultTargetFolder, "where to put generation file")
 
-	PgDumpArgs = []string{
+	// pg-dump arguments to get schema only
+	SchemaOnlyArgs = []string{
 		"--no-comments",
 		"--no-publications",
 		"--no-security-labels",
@@ -41,6 +43,22 @@ var (
 		"--no-privileges",
 		"--no-blobs",
 		"--schema-only",
+		"--clean",
+	}
+
+	// pg-dump arguments to get data only
+	DataOnlyArgs = []string{
+		"--no-comments",
+		"--no-publications",
+		"--no-security-labels",
+		"--no-subscriptions",
+		"--no-synchronized-snapshots",
+		"--no-tablespaces",
+		"--no-unlogged-table-data",
+		"--no-owner",
+		"--no-privileges",
+		"--no-blobs",
+		"--data-only",
 		"--clean",
 	}
 
@@ -70,7 +88,7 @@ func main() {
 }
 
 func generateMigrations(version, table string) error {
-	b, err := pgDump(table).CombinedOutput()
+	b, err := pgDump(table, SchemaOnlyArgs).CombinedOutput()
 	if err != nil {
 		return errors.New(string(b))
 	}
@@ -117,9 +135,8 @@ func isDownScript(line string) bool {
 	return strings.Contains(line, "DROP")
 }
 
-func pgDump(table string) *exec.Cmd {
-	var args []string
-	args = append(PgDumpArgs,
+func pgDump(table string, args []string) *exec.Cmd {
+	args = append(args,
 		"--username", *DBUser,
 		"--port", *DBPort,
 		"--host", *DBHost,

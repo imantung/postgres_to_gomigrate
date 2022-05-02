@@ -20,6 +20,10 @@ Simple script to prepare [gomigrate](https://github.com/golang-migrate/migrate) 
 
 2. Generate migrations file (edit the script for different configs)
     ```bash
+    # remove the previous generated files
+    rm -rf migrations
+
+    # run the script
     go run generate_migration.go
     ```
 

@@ -7,3 +7,7 @@ CREATE TABLE books (
 );
 
 create index books_title_idx on books(title);
+
+insert into books (title, author) values ('title1', 'author1');
+insert into books (title, author) values ('title2', 'author2');
+insert into books (title, author) values ('title3', 'author3');
